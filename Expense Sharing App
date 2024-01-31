@@ -1,0 +1,90 @@
+class ExpenseTracker:
+    def __init__(self):
+        self.expenses = {}
+        self.balance = {}
+
+    def add_expense(self, payer, amount, participants):
+        if payer not in self.balance:
+            self.balance[payer] = 0
+
+        share_per_person = amount / len(participants)
+        for participant in participants:
+            if participant != payer:
+                if participant not in self.balance:
+                    self.balance[participant] = 0
+                self.balance[participant] += share_per_person
+
+        self.expenses.setdefault(payer, []).append({"amount": amount, "participants": participants})
+
+    def settle_balance(self, user1, user2):
+        if user1 not in self.balance or user2 not in self.balance:
+            print("Invalid user(s) for settlement.")
+            return
+
+        amount = min(self.balance[user1], -self.balance[user2])
+        if amount > 0:
+            self.balance[user1] -= amount
+            self.balance[user2] += amount
+            print(f"{user1} owes {user2}: {amount}")
+        elif amount < 0:
+            self.balance[user1] -= amount
+            self.balance[user2] += amount
+            print(f"{user2} owes {user1}: {-amount}")
+        else:
+            print("No settlement needed.")
+
+    def display_balance(self):
+        print("Balance:")
+        for user, amount in self.balance.items():
+            print(f"{user}: {amount}")
+
+    def display_expenses(self):
+        print("Expenses:")
+        for payer, expenses in self.expenses.items():
+            print(f"{payer} paid:")
+            for expense in expenses:
+                print(f"  Amount: {expense['amount']}, Participants: {expense['participants']}")
+
+
+def main():
+    tracker = ExpenseTracker()
+
+    while True:
+        print("\nExpense Tracker Menu:")
+        print("1. Add Expense")
+        print("2. Settle Balance")
+        print("3. Display Balance")
+        print("4. Display Expenses")
+        print("5. Exit")
+
+        choice = input("Enter your choice (1-5): ")
+
+        if choice == "1":
+            payer = input("Enter the name of the payer: ")
+            amount = float(input("Enter the amount paid: "))
+            participants = input("Enter the names of participants (comma-separated): ").split(',')
+            tracker.add_expense(payer, amount, participants)
+
+        elif choice == "2":
+            user1 = input("Enter the name of the first user: ")
+            user2 = input("Enter the name of the second user: ")
+            tracker.settle_balance(user1, user2)
+
+        elif choice == "3":
+            tracker.display_balance()
+
+        elif choice == "4":
+            tracker.display_expenses()
+
+        elif choice == "5":
+            print("Exiting Expense Tracker.")
+            break
+
+        else:
+            print("Invalid choice. Please enter a number between 1 and 5.")
+
+
+if __name__ == "__main__":
+    main()
+
+
